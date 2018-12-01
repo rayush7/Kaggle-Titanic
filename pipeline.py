@@ -14,8 +14,8 @@ def main():
 	cross_val_type = 'Hold_Out'
 	#cross_val_type = 'Stratified_KFold'
 
-	final_training_type = 'train_test_split'
-	final_training_type = 'train_split'
+	#final_training_type = 'train_test_split'
+	#final_training_type = 'train_split'
 
 	nsplit = 5
 
