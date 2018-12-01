@@ -11,13 +11,13 @@ def main():
 	train_file_path = './Data/train.csv'
 	test_file_path = './Data/test.csv'
 
-	cross_val_type = 'Leave_One_Out'
-	#cross_val_type = 'KFold'
+	cross_val_type = 'Hold_Out'
+	#cross_val_type = 'Stratified_KFold'
 
 	final_training_type = 'train_test_split'
 	final_training_type = 'train_split'
 
-	#nsplit = 5
+	nsplit = 5
 
 	#Train Data
 	train_data = pd.read_csv(train_file_path)
@@ -40,22 +40,14 @@ def main():
 
 	feature_list = list(train_features.columns)
 
-	if cross_val_type == 'Leave_One_Out':
-		# Hold Out Cross Validation
-		train_features_full_reduced, test_features_reduced, model_crossval = apply_hold_one_out_crossval(train_features,test_features,train_targets,feature_list)
+	# Apply Hold One Out Cross validation
+	train_features_full_reduced, test_features_reduced, model_crossval = apply_hold_one_out_crossval(train_features,test_features,train_targets,feature_list)
+	get_final_prediction(model_crossval, test_features_reduced, test_file_path,'./predicted_class_hold_one_out.csv')
 
-	#elif cross_val_type == 'KFold':
-		#Apply KFold Cross Validation
-		#apply_kfold_crossval(train_features,test_features,train_targets,nsplit)
-
-	if final_training_type == 'train_test_split':
-		#Training on Full Dataset
-		final_model = complete_training(train_features_full_reduced, test_features_reduced, train_targets, test_file_path)
-	elif final_training_type == 'train_split':
-		final_model = model_crossval
-
-	#Prediction
-	get_final_prediction(final_model, test_features_reduced, test_file_path)
+	#Apply Stratified KFold Cross Validation and Hyperparameter search for Random Forest Model and train the model on complete training set
+	tuned_final_model = apply_stratified_kfold_crossval_xgboost(train_features_full_reduced,train_targets,nsplit)
+	get_final_prediction(tuned_final_model, test_features_reduced, test_file_path,'./predicted_class_grid_search_xgboost.csv')
+	
 #-------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

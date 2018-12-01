@@ -191,7 +191,7 @@ def apply_random_forest(X_train_preprocessed, X_test_preprocessed, y_train, y_te
 	print 'Applying Random Forest'
 
 	# Training the classifier
-	classifier = RandomForestClassifier(n_estimators=100, max_depth=2,random_state=0)
+	classifier = RandomForestClassifier(n_estimators=100, max_depth=4,random_state=0)
 	classifier = classifier.fit(X_train_preprocessed,y_train)
 	
 	# Testing the classifier on Test Data
@@ -240,7 +240,7 @@ def complete_training(train_features_full_reduced, train_targets):
 
 #------------------------------------------------------------------------------------------------------------------------------------------
 
-def get_final_prediction(model,test_features_reduced,test_file_path):
+def get_final_prediction(model,test_features_reduced,test_file_path,pred_file_name):
 
 	y_test_pred_values = model.predict(test_features_reduced)
 	y_test_pred = [int(value) for value in y_test_pred_values]
@@ -250,17 +250,40 @@ def get_final_prediction(model,test_features_reduced,test_file_path):
 	aux = pd.read_csv(test_file_path)
 	df_output['PassengerId'] = aux['PassengerId']
 	df_output['Survived'] = y_test_pred
-	df_output[['PassengerId','Survived']].to_csv('./predicted_class.csv', index=False)
+	df_output[['PassengerId','Survived']].to_csv(pred_file_name, index=False)
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
-#def apply_kfold_crossval(train_features,test_features,train_targets,nsplit):
+def apply_stratified_kfold_crossval_xgboost(train_features_full_reduced,train_targets,nsplit):
 
-#	print 'Apply KFold Cross Validation'
+	print 'Apply Stratified Cross Validation and Grid Search'
 
-	# Scikit-learn k-fold cross-validation prepare cross validation
-#	kfold = KFold(nsplit, True, 1)
-	
-#	for train, val in kfold.split(train_features):
+   	parameter_grid = {
+        'min_child_weight': [1, 5, 10],
+        'gamma': [0.5, 1, 1.5, 2, 5],
+        'subsample': [0.6, 0.8, 1.0],
+        'colsample_bytree': [0.6, 0.8, 1.0],
+        'max_depth': [3, 4, 5]
+        }
 
-#------------------------------------------------------------------------------------------------------------------------------------------------
+	xgb = XGBClassifier(learning_rate=0.02, n_estimators=600, objective='binary:logistic',
+                    silent=True, nthread=1)
+
+	cross_validation = StratifiedKFold(n_splits=nsplit)
+
+   	grid_search = GridSearchCV(xgb,
+                              scoring='accuracy',
+                              param_grid=parameter_grid,
+                              cv=cross_validation,
+                              verbose=1
+                             )
+
+   	grid_search.fit(train_features_full_reduced, train_targets)
+   	tuned_model = grid_search
+   	#parameters = grid_search.best_params_
+   	#print('Best score: {}'.format(grid_search.best_score_))
+   	#print('Best parameters: {}'.format(grid_search.best_params_))
+
+   	return tuned_model
+    
+#--------------------------------------------------------------------------------------------------------------------
