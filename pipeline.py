@@ -44,7 +44,7 @@ def main():
 	train_features_full_reduced, test_features_reduced, model_crossval = apply_hold_one_out_crossval(train_features,test_features,train_targets,feature_list)
 	get_final_prediction(model_crossval, test_features_reduced, test_file_path,'./predicted_class_hold_one_out.csv')
 
-	#Apply Stratified KFold Cross Validation and Hyperparameter search for Random Forest Model and train the model on complete training set
+	#Apply Stratified KFold Cross Validation and Hyperparameter Grid search for XgGoost Model and train the model on complete training set
 	tuned_final_model = apply_stratified_kfold_crossval_xgboost(train_features_full_reduced,train_targets,nsplit)
 	get_final_prediction(tuned_final_model, test_features_reduced, test_file_path,'./predicted_class_grid_search_xgboost.csv')
 	
