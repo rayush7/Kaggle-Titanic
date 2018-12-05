@@ -144,7 +144,7 @@ def apply_data_split_preprocessing(raw_dataset,labels):
 
 	min_max_scaler = preprocessing.MinMaxScaler()
 	X_train_minmax = min_max_scaler.fit_transform(X_train)
-	X_val_minmax = min_max_scaler.fit_transform(X_val)
+	X_val_minmax = min_max_scaler.transform(X_val)
 
 	return X_train_minmax, X_val_minmax, y_train, y_val, min_max_scaler
 
